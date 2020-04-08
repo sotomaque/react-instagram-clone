@@ -47,7 +47,7 @@ function FeedPost({ post, index }) {
           </div>
 
           {/* Likes Count */}
-          <Typography className={classes.like} variant='subtitle2'>
+          <Typography className={classes.likes} variant='subtitle2'>
             <span>
               {
                 likes === 1 ? '1 like' : `${likes} likes`
