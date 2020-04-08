@@ -10,19 +10,24 @@ import { getDefaultUser } from "../../data";
 import { Link } from "react-router-dom";
 import FollowButton from "./FollowButton";
 
-function FollowSuggestions() {
+function FollowSuggestions({ hideHeader }) {
   const classes = useFollowSuggestionsStyles();
   const [loading, setLoading] = React.useState(false);
 
   return (
     <div className={classes.container}>
-      <Typography
-        color="textSecondary"
-        variant="subtitle2"
-        className={classes.typography}
-      >
-        Suggestions for you
-      </Typography>
+      {/* Header (only displayed when props is false) */}
+      {
+        !hideHeader &&
+        <Typography
+          color="textSecondary"
+          variant="subtitle2"
+          className={classes.typography}
+        >
+          Suggestions for you
+        </Typography>
+      }
+      {/* Component Body */}
       {
         loading ? (
           <LoadingLargeIcon />
@@ -57,7 +62,9 @@ function FollowSuggestionsItem({ user }) {
 
   return (
     <div>
+      {/* User Card */}
       <div className={classes.card}>
+        {/* Profile Picture */}
         <Link to={`/${username}`}>
           <Avatar
             src={profile_image}
@@ -69,6 +76,7 @@ function FollowSuggestionsItem({ user }) {
           />
         </Link>
         <Link to={`/${username}`}>
+          {/* Username */}
           <Typography
             variant='subtitle2'
             className={classes.text}
@@ -76,6 +84,7 @@ function FollowSuggestionsItem({ user }) {
           >
             {username}
           </Typography>
+          {/* Name */}
           <Typography
             color='textSecondary'
             variant='body2'
@@ -86,8 +95,6 @@ function FollowSuggestionsItem({ user }) {
           </Typography>
         </Link>
         <FollowButton side={false} />
-        
-    
       </div>
     </div>
   );
