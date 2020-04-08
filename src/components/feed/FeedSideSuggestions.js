@@ -20,7 +20,7 @@ function FeedSideSuggestions() {
           variant="subtitle2"
           component="h2"
           align="left"
-          gutterbotttom
+          gutterBotttom
           className={classes.typography}
         >
           Suggestions for You
