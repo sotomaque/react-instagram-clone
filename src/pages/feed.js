@@ -24,8 +24,8 @@ function FeedPage() {
         <div>
           { 
             Array.from({ length: 5 }, () => getDefaultPost())
-              .map(post => (
-                <FeedPost key={post.id} post={post}/>
+              .map((post, index) => (
+                <FeedPost key={post.id} post={post} index={index} />
               ))
           }
         </div>

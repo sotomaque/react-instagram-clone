@@ -1,6 +1,6 @@
 import React from "react";
 import { useFeedPostStyles } from "../../styles";
-
+import FollowSuggestions from '../shared/FollowSuggestions';
 import UserCard from "../shared/UserCard";
 import { MoreIcon, CommentIcon, ShareIcon, UnlikeIcon, LikeIcon, RemoveIcon, SaveIcon } from '../../icons';
 import { Link } from "react-router-dom";
@@ -8,16 +8,17 @@ import { Typography, Button, Hidden, Divider, TextField } from "@material-ui/cor
 
 import HTMLEllipsis from 'react-lines-ellipsis/lib/html';
 
-function FeedPost({ post }) {
+function FeedPost({ post, index }) {
   const classes = useFeedPostStyles();
-
   const [showCaption, setShowCaption] = React.useState(false);
 
   const { id, media, likes, user, caption, comments } = post;
 
+  const showFollowSuggestions = index === 1;
+
   return (
     <>
-      <article className={classes.article}>
+      <article className={classes.article} style={{marginBottom: showFollowSuggestions && 30}}>
 
         {/* Feed Post Header */}
         <div className={classes.postHeader}>
@@ -140,6 +141,11 @@ function FeedPost({ post }) {
           <Comment />
         </Hidden>
       </article>
+
+      {/* Follow Suggestions */}
+      {
+        showFollowSuggestions && <FollowSuggestions />
+      }
     </>
   );
 }
