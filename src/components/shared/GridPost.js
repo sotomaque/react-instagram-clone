@@ -1,12 +1,22 @@
 import React from "react";
 import { useGridPostStyles } from "../../styles";
 import { Typography } from "@material-ui/core";
+import { useHistory } from "react-router-dom";
 
 function GridPost({ post }) {
+  const history = useHistory();
+
   const classes = useGridPostStyles();
 
+  function handleOpenPostModal() {
+    history.push({
+      pathname: `/p/${post.id}`,
+      state: { modal: true } 
+    });
+  }
+
   return (
-    <div className={classes.gridPostContainer}>
+    <div onClick={handleOpenPostModal} className={classes.gridPostContainer}>
       {/* Post Overlay */}
       <div className={classes.gridPostOverlay}>
 
@@ -23,7 +33,7 @@ function GridPost({ post }) {
         </div>
       </div>
       {/* Post Media */}
-      <img src={post.media} alt="Post Cover Image" className={classes.image} />
+      <img src={post.media} alt="Post Cover Media" className={classes.image} />
    </div>
   );
 }
