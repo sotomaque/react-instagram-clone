@@ -86,10 +86,12 @@ function Post() {
               ))
             }
           </div>
+
           {/* Date Posted Info */}
           <Typography color='textSecondary' className={classes.datePosted}>
             5 DAYS AGO
           </Typography>
+
           {/* Area to add a comment */}
           <Hidden xsDown>
             <div className={classes.comment}>
@@ -97,6 +99,7 @@ function Post() {
               <Comment />
             </div>
           </Hidden>
+          
         </div>
 
       </article>

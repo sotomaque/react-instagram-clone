@@ -16,15 +16,19 @@ function SignUpPage() {
       <SEO title="Sign Up" />
       <section className={classes.section}>
         <article>
+          {/* Sign Up Card */}
           <Card className={classes.card}>
             <div className={classes.cardHeader} />
 
+            {/* Sign Up Header */}
             <Typography className={classes.cardHeaderSubHeader}>
             Sign up to see photos and videos from your friends
             </Typography>
 
+            {/* Login with Facebook Button */}
             <LoginWithFacebook color='primary' iconColor='white' variant='contained' />
           
+            {/* Divider */}
             <div className={classes.orContainer}>
               <div className={classes.orLine} />
               <div>
@@ -35,6 +39,7 @@ function SignUpPage() {
               <div className={classes.orLine} />
             </div>
 
+            {/* Sign Up Form */}
             <form>
               <TextField
                 fullWidth
@@ -44,7 +49,6 @@ function SignUpPage() {
                 margin="dense"
                 className={classes.textField}
               />
-
               <TextField
                 fullWidth
                 variant="filled"
@@ -52,7 +56,6 @@ function SignUpPage() {
                 margin="dense"
                 className={classes.textField}
               />
-
               <TextField
                 fullWidth
                 variant="filled"
@@ -61,7 +64,6 @@ function SignUpPage() {
                 className={classes.textField}
                 autoComplete="username"
               />
-
               <TextField
                 fullWidth
                 variant="filled"
@@ -72,7 +74,6 @@ function SignUpPage() {
                 autoComplete="new-password"
               />
             </form>
-
             <Button 
                 variant="contained"
                 fullWidth
@@ -82,9 +83,9 @@ function SignUpPage() {
               >
               Sign Up
             </Button>
-
           </Card>
 
+          {/* Link to Login Page */}
           <Card className={classes.loginCard}>
             <Typography align="right" variant="body2">
               Have have an account?
@@ -95,6 +96,7 @@ function SignUpPage() {
               </Button>
             </Link>
           </Card>
+          
         </article>
       </section>
     </>
