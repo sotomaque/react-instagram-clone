@@ -14,7 +14,7 @@ function Post() {
   const { id, media, likes, user, caption, comments } = defaultPost;
   const [loading, setLoading] = React.useState(true);
 
-  setTimeout(() => setLoading(false), 2000);
+  setTimeout(() => setLoading(false), 100);
   if (loading) return <PostSkeleton />
 
   return (
@@ -99,7 +99,7 @@ function Post() {
               <Comment />
             </div>
           </Hidden>
-          
+
         </div>
 
       </article>
