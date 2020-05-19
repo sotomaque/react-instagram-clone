@@ -4,9 +4,10 @@ import Layout from "../components/shared/Layout";
 import { defaultCurrentUser } from '../data';
 import { Card, CardContent, Hidden, Button, Typography, Dialog, Zoom, Divider, DialogTitle, Avatar } from "@material-ui/core";
 import ProfilePicture from '../components/shared/ProfilePicture';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { GearIcon } from "../icons";
 import ProfileTabs from '../components/profile/ProfileTabs';
+import { AuthContext } from "../auth";
 
 function ProfilePage() {
   const classes = useProfilePageStyles();
@@ -238,10 +239,16 @@ function NameBioSection({ user }) {
 
 function OptionMenu({ handleClick }) {
   const classes = useProfilePageStyles();
+  const { signOut } = React.useContext(AuthContext);
+  const history = useHistory();
   const [showLogoutMessage, setLogoutMessage] = React.useState(false);
 
   function handleLogoutClick() {
-    setLogoutMessage(prev => !prev);
+    setLogoutMessage(true);
+    setTimeout(() => {
+      signOut();
+      history.push('/accounts/login');
+    }, 1000)
   }
 
   return (

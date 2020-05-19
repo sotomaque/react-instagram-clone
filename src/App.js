@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, Route, useHistory, useLocation } from 'react-router-dom';
+import { Switch, Route, useHistory, useLocation, Redirect } from 'react-router-dom';
 import FeedPage from './pages/feed';
 import ExplorePage from './pages/explore';
 import ProfilePage from './pages/profile';
@@ -13,7 +13,7 @@ import { AuthContext } from "./auth";
 
 function App() {
   const { authState } = React.useContext(AuthContext);
-  console.log({ authState });
+  const isAuth = authState.status === 'in'
   const history = useHistory();
   const location = useLocation();
   const prevLocation = React.useRef(location);
@@ -27,6 +27,17 @@ function App() {
   
   const isModalOpen = modal && prevLocation.current !== location;
 
+  if (!isAuth) {
+    // use unAuth routes
+    return (
+      <Switch>
+        <Route path="/accounts/login" component={LoginPage} />
+        <Route path="/accounts/emailsignup" component={SignUpPage} />
+        <Redirect to="/accounts/login" />
+      </Switch>
+    )
+  }
+
   return (
     <>
       {/** imperatively telling switch to ignore routers current location and use the previous one if the modal is open **/}
@@ -38,6 +49,7 @@ function App() {
         <Route path="/accounts/edit" component={EditProfilePage} />
         <Route path="/accounts/login" component={LoginPage} />
         <Route path="/accounts/emailsignup" component={SignUpPage} />
+        
         <Route path="*" component={NotFoundPage} />
       </Switch>    
       {
