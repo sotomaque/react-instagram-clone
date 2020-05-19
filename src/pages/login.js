@@ -10,6 +10,7 @@ import isEmail from 'validator/lib/isEmail';
 
 import SEO from '../components/shared/Seo';
 import LoginWithFacebook from '../components/shared/LoginWithFacebook';
+import { AuthError } from './signup';
 
 import { useLoginPageStyles } from "../styles";
 
@@ -19,16 +20,29 @@ function LoginPage() {
   const client = useApolloClient();
   const { loginWithEmailAndPassword } = React.useContext(AuthContext);
   const { register, handleSubmit, watch, formState } = useForm({ mode: 'onBlur' });
+  
   const [showPassword, setShowPassword] = React.useState(false);
+  const [error, setError] = React.useState('');
   const hasPassword = Boolean(watch('password'));
 
   async function onSubmit({ input, password }) {
-    if (!isEmail(input)) {
-      input = await getUserEmail(input);
-    } 
-    console.log(input, password)
-    await loginWithEmailAndPassword(input, password);
-    setTimeout(() => history.push('/'), 0);
+    try {
+      setError('');
+      if (!isEmail(input)) {
+        input = await getUserEmail(input);
+      } 
+      await loginWithEmailAndPassword(input, password);
+      setTimeout(() => history.push('/'), 0);
+    } catch(err) {
+      console.error("error logging up", err)
+      handleError(err)
+    }
+  }
+
+  function handleError(error) {
+    if (error.code.includes('auth')) {
+      setError(error.message);
+    }
   }
 
   async function getUserEmail(input) {
@@ -114,6 +128,8 @@ function LoginPage() {
               </div>
               {/* Login with Facebook */}
               <LoginWithFacebook color="secondary" iconColor="blue" />
+              {/* Error */}
+              <AuthError error={error} />
               {/* Forgot Password */}
               <Button fullWidth color="secondary">
                 <Typography variant="caption">

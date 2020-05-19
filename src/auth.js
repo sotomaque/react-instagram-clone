@@ -57,8 +57,23 @@ function AuthProvider({ children }) {
     });
   }, []);
 
-  async function signInWithGoogle() {
-    await firebase.auth().signInWithPopup(provider);
+  async function loginWithGoogle() {
+    const data = await firebase.auth().signInWithPopup(provider);
+    if (data.additionalUserInfo.isNewUser) {
+      const { uid, displayName, photoURL, email } = data.user;
+      const username = `${displayName.replace(/\s+/g + "")}${uid.slice(-5)}`
+      const variables = {
+        userId: uid,
+        name: displayName,
+        username: username,
+        email: email,
+        bio: "",
+        website: "",
+        profileImage: photoURL,
+        phoneNumber: "" 
+      }
+      await createUser({ variables });
+    }
   };
 
   async function signUpWithEmailAndPassword(formData) {
@@ -97,7 +112,7 @@ function AuthProvider({ children }) {
         <AuthContext.Provider 
             value={{
                 authState,
-                signInWithGoogle,
+                loginWithGoogle,
                 signUpWithEmailAndPassword,
                 loginWithEmailAndPassword,
                 signOut
