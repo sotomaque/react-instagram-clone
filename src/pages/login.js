@@ -1,28 +1,44 @@
 import React from "react";
 import { Link, useHistory } from 'react-router-dom';
+import { useApolloClient } from "@apollo/react-hooks";
+import { GET_USER_EMAIL } from "../graphql/queries";
+import { AuthContext } from "../auth";
 
 import { Card, CardHeader, TextField, Button, Typography, InputAdornment } from "@material-ui/core";
 import { useForm } from 'react-hook-form';
+import isEmail from 'validator/lib/isEmail';
 
 import SEO from '../components/shared/Seo';
 import LoginWithFacebook from '../components/shared/LoginWithFacebook';
 
 import { useLoginPageStyles } from "../styles";
-import { AuthContext } from "../auth";
 
 function LoginPage() {
   const classes = useLoginPageStyles();
   const history = useHistory();
+  const client = useApolloClient();
   const { loginWithEmailAndPassword } = React.useContext(AuthContext);
   const { register, handleSubmit, watch, formState } = useForm({ mode: 'onBlur' });
   const [showPassword, setShowPassword] = React.useState(false);
   const hasPassword = Boolean(watch('password'));
 
-  async function onSubmit(data) {
-    // console.log(data);
-    const res = await loginWithEmailAndPassword(data.input, data.password);
-    console.log(res)
-    history.push('/');
+  async function onSubmit({ input, password }) {
+    if (!isEmail(input)) {
+      input = await getUserEmail(input);
+    } 
+    console.log(input, password)
+    await loginWithEmailAndPassword(input, password);
+    setTimeout(() => history.push('/'), 0);
+  }
+
+  async function getUserEmail(input) {
+    const variables = { input }
+    const response = await client.query({
+      query: GET_USER_EMAIL,
+      variables
+    });
+    const userEmail = response.data.users[0]?.email || "no@email.com";
+    return userEmail;
   }
 
   function toggleShowPassword() {

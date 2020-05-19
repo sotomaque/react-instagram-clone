@@ -12,7 +12,6 @@ import isEmail from 'validator/lib/isEmail';
 import SEO from '../components/shared/Seo';
 import LoginWithFacebook from '../components/shared/LoginWithFacebook';
 
-
 import { useSignUpPageStyles } from "../styles";
 
 function SignUpPage() {
