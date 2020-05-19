@@ -3,13 +3,37 @@ import { useSignUpPageStyles } from "../styles";
 
 import SEO from '../components/shared/Seo';
 import { Card, TextField, Button, Typography } from "@material-ui/core";
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 
 import LoginWithFacebook from '../components/shared/LoginWithFacebook';
+import { AuthContext } from "../auth";
 
 
 function SignUpPage() {
   const classes = useSignUpPageStyles();
+  const history = useHistory();
+
+  const { signUpWithEmailAndPassword } = React.useContext(AuthContext);
+
+  const [values, setValues] = React.useState({
+    email: '',
+    name: '',
+    username: '', 
+    password: ''
+  });
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setValues(prev => ({ ...prev, [name]: value }));
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    console.log('here')
+    console.log('values: ', values)
+    await signUpWithEmailAndPassword(values);
+    history.push('/');
+  }
 
   return (
     <>
@@ -18,16 +42,14 @@ function SignUpPage() {
         <article>
           {/* Sign Up Card */}
           <Card className={classes.card}>
+            {/* Logo */}
             <div className={classes.cardHeader} />
-
             {/* Sign Up Header */}
             <Typography className={classes.cardHeaderSubHeader}>
-            Sign up to see photos and videos from your friends
+              Sign up to see photos and videos from your friends
             </Typography>
-
             {/* Login with Facebook Button */}
             <LoginWithFacebook color='primary' iconColor='white' variant='contained' />
-          
             {/* Divider */}
             <div className={classes.orContainer}>
               <div className={classes.orLine} />
@@ -38,10 +60,11 @@ function SignUpPage() {
               </div>
               <div className={classes.orLine} />
             </div>
-
             {/* Sign Up Form */}
-            <form>
+            <form onSubmit={(event) => handleSubmit(event)}>
               <TextField
+                name="email"
+                onChange={(event) => handleChange(event)}
                 fullWidth
                 variant="filled"
                 label="Email"
@@ -50,6 +73,8 @@ function SignUpPage() {
                 className={classes.textField}
               />
               <TextField
+                name="name"
+                onChange={(event) => handleChange(event)}
                 fullWidth
                 variant="filled"
                 label="Full Name"
@@ -57,6 +82,8 @@ function SignUpPage() {
                 className={classes.textField}
               />
               <TextField
+                name="username"
+                onChange={(event) => handleChange(event)}
                 fullWidth
                 variant="filled"
                 label="Username"
@@ -65,6 +92,8 @@ function SignUpPage() {
                 autoComplete="username"
               />
               <TextField
+                name="password"
+                onChange={(event) => handleChange(event)}
                 fullWidth
                 variant="filled"
                 label="Password"
@@ -73,18 +102,17 @@ function SignUpPage() {
                 className={classes.textField}
                 autoComplete="new-password"
               />
+              <Button 
+                  variant="contained"
+                  fullWidth
+                  color="primary"
+                  className={classes.button}
+                  type="submit"
+                >
+                Sign Up
+              </Button>
             </form>
-            <Button 
-                variant="contained"
-                fullWidth
-                color="primary"
-                className={classes.button}
-                type="submit"
-              >
-              Sign Up
-            </Button>
           </Card>
-
           {/* Link to Login Page */}
           <Card className={classes.loginCard}>
             <Typography align="right" variant="body2">
@@ -96,7 +124,6 @@ function SignUpPage() {
               </Button>
             </Link>
           </Card>
-          
         </article>
       </section>
     </>

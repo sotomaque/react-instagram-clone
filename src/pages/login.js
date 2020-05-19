@@ -21,7 +21,7 @@ function LoginPage() {
             <CardHeader className={classes.cardHeader} />
 
             {/* Input Form */}
-            <form>
+            <form onSubmit={() => console.log('clicked')}>
               <TextField
                 fullWidth
                 variant="filled"
