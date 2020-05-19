@@ -8,7 +8,7 @@ import { Hidden } from '@material-ui/core';
 import LoadingScreen from "../components/shared/LoadingScreen";
 import { LoadingLargeIcon } from "../icons";
 import FeedPostSkeleton from '../components/feed/FeedPostSkeleton';
-
+// lazy load the component only when we need it
 const FeedPost = React.lazy(() => import('../components/feed/FeedPost'));
 
 function FeedPage() {

@@ -6,11 +6,12 @@ import { Card, CardContent, Hidden, Button, Typography, Dialog, Zoom, Divider, D
 import ProfilePicture from '../components/shared/ProfilePicture';
 import { Link } from "react-router-dom";
 import { GearIcon } from "../icons";
+import ProfileTabs from '../components/profile/ProfileTabs';
 
 function ProfilePage() {
   const classes = useProfilePageStyles();
   const [showOptionsMenu, setOptionsMenu] = React.useState(false);
-  const isOwner = false;
+  const isOwner = true;
 
   function handleOptionMenuClick() {
     setOptionsMenu(prev => !prev);
@@ -47,6 +48,7 @@ function ProfilePage() {
         {
           showOptionsMenu && <OptionMenu handleClick={handleOptionMenuClick} />
         }
+        <ProfileTabs user={defaultCurrentUser} isOwner={isOwner} />
       </div>
     </Layout>
   );
@@ -57,7 +59,7 @@ function ProfileNameSection({ user, isOwner, handleOptionMenuClick }) {
   const [showUnfollowDialog, setUnfollowDialog] = React.useState(false);
 
   let followButton;
-  const isFollowing = true;
+  const isFollowing = false;
   const isFollower = false;
 
   if (isFollowing) {
@@ -188,27 +190,29 @@ function PostCountSection({ user }) {
       <Hidden smUp>
         <Divider />
       </Hidden>
+
       <section className={classes.followingSection}>
-      {
-        options.map(option => (
-          <div key={option} className={classes.followingText} >
-            <Typography className={classes.followingCount}>
-              {user[option].length}
-            </Typography>
-            <Hidden xsDown>
-              <Typography>
-                {option}
+        {
+          options.map(option => (
+            <div key={option} className={classes.followingText} >
+              <Typography className={classes.followingCount}>
+                {user[option].length}
               </Typography>
-            </Hidden>
-            <Hidden smUp>
-              <Typography color="textSecondary">
-                {option}
-              </Typography>
-            </Hidden>
-            </div>
-        ))
-      }
+              <Hidden xsDown>
+                <Typography>
+                  {option}
+                </Typography>
+              </Hidden>
+              <Hidden smUp>
+                <Typography color="textSecondary">
+                  {option}
+                </Typography>
+              </Hidden>
+              </div>
+          ))
+        }
       </section>
+
       <Hidden smUp>
         <Divider />
       </Hidden>
@@ -249,36 +253,35 @@ function OptionMenu({ handleClick }) {
       }}
       TransitionComponent={Zoom}
     >
-    {
-      showLogoutMessage ? (
-        <DialogTitle className={classes.dialogTitle}>
-          Logging Out
-          <Typography color="textSecondary">
-            Please log back in to continue using finstagram
-          </Typography>
-        </DialogTitle>
-      ) : (
-        <>
-          <OptionsItem text="Change Password" />
-          <OptionsItem text="Nametag" />
-          <OptionsItem text="Authorized Apps" />
-          <OptionsItem text="Notifications" />
-          <OptionsItem text="Privacy and Security" />
-          <OptionsItem text="Log out" onClick={handleLogoutClick}/>
-          <OptionsItem text="Cancel" color="red" onClick={handleClick} />
-        </>
-      )
-    }
-      
+      {
+        showLogoutMessage ? (
+          <DialogTitle className={classes.dialogTitle}>
+            Logging Out
+            <Typography color="textSecondary">
+              Please log back in to continue using Finstagram.
+            </Typography>
+          </DialogTitle>
+        ) : (
+          <>
+            <OptionsItem text="Change Password" />
+            <OptionsItem text="Nametag" />
+            <OptionsItem text="Authorized Apps" />
+            <OptionsItem text="Notifications" />
+            <OptionsItem text="Privacy and Security" />
+            <OptionsItem text="Log out" onClick={handleLogoutClick}/>
+            <OptionsItem text="Cancel" color={'red'} onClick={handleClick} />
+          </>
+        )
+      }
     </Dialog>
   );
 
 }
 
-function OptionsItem({ text, onClick }) {
+function OptionsItem({ text, onClick, color = 'black'}) {
   return (
     <>
-      <Button style={{padding: '12px 8px'}} onClick={onClick}>
+      <Button style={{padding: '12px 8px', color: `${color}` }} onClick={onClick}>
         {text}
       </Button>
       <Divider />

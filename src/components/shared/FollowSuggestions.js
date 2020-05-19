@@ -12,7 +12,7 @@ import FollowButton from "./FollowButton";
 
 function FollowSuggestions({ hideHeader }) {
   const classes = useFollowSuggestionsStyles();
-  const [loading, setLoading] = React.useState(false);
+  const [loading] = React.useState(false);
 
   return (
     <div className={classes.container}>

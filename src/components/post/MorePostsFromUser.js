@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 function MorePostsFromUser() {
   const classes = useMorePostsFromUserStyles();
 
-  const [loading, setLoading] = React.useState(false);
+  const [loading] = React.useState(false);
 
   return (
     <div className={classes.container}>
