@@ -121,7 +121,7 @@ function SavedPosts() {
         <div className={classes.noContent}>
           <div className={classes.savePhotoIcon} />
           <Typography variant="h4">
-            Save
+            Saved
           </Typography>
           <Typography align="center">
             Save photos and videos that you want to see again. No one is notified, and only you can see what you've saved.
