@@ -21,7 +21,7 @@ function LoginWithFacebook({ color, iconColor, variant }) {
     async function handleLoginWithGoogle() {
         try {
             await loginWithGoogle();
-            setTimeout(() => history.push('/'), 0);
+            setTimeout(() => history.push('/'), 10);
         } catch(err) {
             setError(err.message);
             console.error('error logging in with google', err)

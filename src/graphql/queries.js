@@ -15,3 +15,18 @@ export const GET_USER_EMAIL = gql`
         }
     }
 `
+
+export const GET_EDIT_PROFILE_INFO = gql`
+    query getEditUserProfile($id: uuid!) {
+        users_by_pk(id: $id) {
+            id
+            username
+            name
+            email
+            bio
+            profile_image
+            website
+            phone_number
+        }
+    }
+`

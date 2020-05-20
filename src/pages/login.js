@@ -15,16 +15,30 @@ import { AuthError } from './signup';
 import { useLoginPageStyles } from "../styles";
 
 function LoginPage() {
+  // hooks
   const classes = useLoginPageStyles();
   const history = useHistory();
   const client = useApolloClient();
-  const { loginWithEmailAndPassword } = React.useContext(AuthContext);
   const { register, handleSubmit, watch, formState } = useForm({ mode: 'onBlur' });
+
+  // context
+  const { loginWithEmailAndPassword } = React.useContext(AuthContext);
   
+  // state and variables
   const [showPassword, setShowPassword] = React.useState(false);
   const [error, setError] = React.useState('');
   const hasPassword = Boolean(watch('password'));
 
+  /**
+   * Async function for submitting form
+   *  function is passed in to handleSubmit function from useForm hook
+   *  function checks if input is email. if not function calls getUserEmail
+   *   and uses the returned value to override passed in input
+   *  function then calls loginWithEmailAndPassword and pushes user to feed page
+   *
+   * @param {Object} inputObject - inputObject comes from HOC and contains input
+   *                               and password attributes from form
+   */
   async function onSubmit({ input, password }) {
     try {
       setError('');
@@ -39,12 +53,25 @@ function LoginPage() {
     }
   }
 
+  /**
+   * Function for setting error message from submitting form
+   *  Cleans up Firebase errors for presentation to the user
+   *  Within AuthError Component
+   * 
+   * @param {Object} error - error object from loginWithEmailAndPassword
+   */
   function handleError(error) {
     if (error.code.includes('auth')) {
       setError(error.message);
     }
   }
 
+  /**
+   * Async function for getting user email from their input
+   *  function calls GET_USER_EMAIL query with input as param variables
+   * 
+   * @param {String} input - input can be either phone number or a username 
+   */
   async function getUserEmail(input) {
     const variables = { input }
     const response = await client.query({
