@@ -48,7 +48,7 @@ function LoginPage() {
       await loginWithEmailAndPassword(input, password);
       setTimeout(() => history.push('/'), 0);
     } catch(err) {
-      console.error("error logging up", err)
+      console.error("Error Logging In", err)
       handleError(err)
     }
   }

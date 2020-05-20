@@ -2,7 +2,7 @@ import React from "react";
 import { UserContext } from "../App";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { GET_EDIT_PROFILE_INFO } from "../graphql/queries";
-import { EDIT_USER } from "../graphql/mutations";
+import { EDIT_USER, EDIT_USER_AVATAR } from "../graphql/mutations";
 import { AuthContext } from "../auth";
 
 import { useForm } from 'react-hook-form';
@@ -18,6 +18,7 @@ import ProfilePicture from "../components/shared/ProfilePicture";
 import Layout from "../components/shared/Layout";
 
 import { useEditProfilePageStyles } from "../styles";
+import handleImageUpload from "../utils/handleImageUpload";
 
 function EditProfilePage({ history }) {
   // hooks
@@ -140,11 +141,19 @@ function EditProfilePage({ history }) {
 
 const DEFAULT_ERROR = {type: '', message: ''};
 
+/**
+ * Component displayed to the right of the drawer when Edit Profile is selected
+ *  Allows users to update their name, username, website, bio, email, 
+ *  phone number, and profile picture
+ * 
+ * @param {*} param0 
+ */
 function EditUserInfo({ user }) {
   // hooks
   const classes = useEditProfilePageStyles();
   const { register, handleSubmit } = useForm({ mode: 'onBlur' });
   const [editUser] = useMutation(EDIT_USER);
+  const [editUserAvatar] = useMutation(EDIT_USER_AVATAR);
 
   // context
   const { updateEmail } = React.useContext(AuthContext);
@@ -152,7 +161,20 @@ function EditUserInfo({ user }) {
   // state 
   const [error, setError] = React.useState(DEFAULT_ERROR);
   const [open, setOpen] = React.useState(false);
+  const [profileImage, setProfileImage] = React.useState(user.profile_image)
 
+  /**
+   * Async function for submitting form
+   *  function is passed in to handleSubmit function from useForm hook
+   *  function attempts to update email on firebase first, as we dont want to 
+   *  persist changes to postgress (heroku) if firebase fails; 
+   *  if firebase update succeeds, function calls editUser query passing in variables
+   *  from the form + the user.id as an object
+   *  function then displays a message notifying user their profile has been updated
+   * 
+   * @param {Object} inputObject - inputObject comes from HOC and contains input
+   *                               and password attributes from form
+   */
   async function onSubmit(data) {
     try {
       setError(DEFAULT_ERROR);
@@ -179,21 +201,44 @@ function EditUserInfo({ user }) {
   function handleError(error) {
     if (error.message.includes('users_username_key')) {
       setError({ type: "username", message: "This username already taken" });
-    } else if (error.code.includes("auth")) {
+    } else if (error.code?.includes("auth")) {
       setError({ type: "email", message: error.message });
     } else {
       console.log("FAILED TO CATCH ERROR", error)
+      setError({ type: 'other', message: 'Error'})
     }
+  }
+
+  async function handleUpdateProfilePic(event) {
+    try {
+      const url = await handleImageUpload(event.target.files[0]);
+      const variables = { id: user.id, profileImage: url };
+      await editUserAvatar({ variables });
+      setProfileImage(url);
+      setOpen(true)
+    } catch(err) {
+      console.error('Error uploading image', err)
+      handleError(err);
+    } 
   }
 
   return (
     <section className={classes.container}>
       <div className={classes.pictureSectionItem}>
-        <ProfilePicture size={38} image={user.profile_image} />
+        <ProfilePicture size={38} image={profileImage} />
 
         <div className={classes.justifySelfStart}>
           <Typography className={classes.typography}>{user.username}</Typography>
-          <Typography color="primary" variant="body2" className={classes.typographyChangePic}>Change Profile Picture</Typography>
+          <input 
+            accept="image/*"
+            id="image"
+            type="file"
+            style={{ display: 'none' }}
+            onChange={handleUpdateProfilePic}
+          />
+          <label htmlFor="image">
+            <Typography color="primary" variant="body2" className={classes.typographyChangePic}>Change Profile Picture</Typography>
+          </label>
         </div>
       </div>
 
@@ -283,13 +328,18 @@ function EditUserInfo({ user }) {
         open={open}
         autoHideDuration={6000}
         TransitionComponent={Slide}
-        message={<span>Profile Updated</span>}
         onClose={() => setOpen(false)}
+        message={"Profile Updated!"}
       />
     </section>
   );
 }
 
+/**
+ * Component used to display label to the left of the input textfield 
+ * 
+ * @param {type, text, formItem, inputRef, name, error} 
+ */
 function SectionItem({ type="text", text, formItem, inputRef, name, error }) {
   const classes = useEditProfilePageStyles();
 

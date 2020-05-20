@@ -5,7 +5,7 @@ export const defaultUser = {
   username: "enrique.png",
   name: "Enrique Sotomayor",
   profile_image:
-  "https://source.unsplash.com/featured/?person"
+  "https://source.unsplash.com/featured/?man"
 };
 
 export function getDefaultUser() {
@@ -14,7 +14,7 @@ export function getDefaultUser() {
     username: "username",
     name: "name",
     profile_image:
-    "https://source.unsplash.com/featured/?person"  
+    "https://source.unsplash.com/featured/?man"  
   };
 }
 
@@ -62,7 +62,7 @@ export const defaultCurrentUser = {
   id: uuid(),
   username: "enrique.png",
   name: "Enrique Sotomayor",
-  profile_image: "https://source.unsplash.com/featured/?person",
+  profile_image: "https://source.unsplash.com/featured/?man",
   website: "https://sotomaque.github.io/personal",
   email: "enrique@gmail.com",
   bio: "death, taxes, and the law of large numbers",
