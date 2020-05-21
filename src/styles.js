@@ -248,7 +248,8 @@ export const useNavbarStyles = makeStyles(theme => ({
     display: "flex",
     alignItems: "center",
     height: "50px",
-    padding: "8px 16px"
+    padding: "8px 16px",
+    overflow: 'hidden'
   },
   avatarWrapper: {
     margin: "0 10px 0 0"

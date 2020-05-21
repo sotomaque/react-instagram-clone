@@ -1,20 +1,30 @@
 import React from "react";
-import { useNavbarStyles, WhiteTooltip, RedTooltip } from "../../styles";
-import { AppBar, Hidden, InputBase, Avatar, Grid, Fade, Typography, Zoom,  } from '@material-ui/core';
 import { Link, useHistory } from 'react-router-dom';
-import logo from '../../images/logo.png';
+import { useLazyQuery } from '@apollo/react-hooks';
+import { SEARCH_USERS } from "../../graphql/queries";
+import { UserContext } from '../../App'
+
+import { AppBar, Hidden, InputBase, Avatar, Grid, Fade, Typography, Zoom,  } from '@material-ui/core';
 import { LoadingIcon, AddIcon, LikeIcon, LikeActiveIcon, ExploreIcon, ExploreActiveIcon, HomeIcon, HomeActiveIcon } from '../../icons';
-import NotificationTooltip from '../notification/NotificationTooltip';
-import { defaultCurrentUser, getDefaultUser } from '../../data';
-import NotificationList from "../notification/NotificationList";
 import { useNProgress } from '@tanem/react-nprogress';
- 
+import NotificationTooltip from '../notification/NotificationTooltip';
+import NotificationList from "../notification/NotificationList";
+import AddPostDialog from "../post/AddPostDialog";
+
+import logo from '../../images/logo.png';
+
+import { useNavbarStyles, WhiteTooltip, RedTooltip } from "../../styles";
+
 function Navbar({ minimalNavbar }) {
+  // hooks
   const classes = useNavbarStyles();
   const history = useHistory();
+
+  // state and local variables
   const [isLoadingPage, setLoadingPage] = React.useState(true);
   const path = history.location.pathname;
 
+  // useEffect
   React.useEffect(() => {
     setLoadingPage(false);    
   }, [path]);
@@ -55,18 +65,28 @@ function Logo() {
 }
 
 function Search({ history }) {
+  // hooks
   const classes = useNavbarStyles();
+  const [searchUsers, { data }] = useLazyQuery(SEARCH_USERS);
+
+  // state and local variables
   const [results, setResults] = React.useState('');
   const [query, setQuery] = React.useState('');
-  const [loading] = React.useState(false);
-
+  const [loading, setLoading] = React.useState(false);
   const hasResults = Boolean(query) && results.length > 0;
 
+  // useEffect
   React.useEffect(() => {
-    if(!query.trim()) return;
+    if (!query.trim()) return;
 
-    setResults(Array.from({ length: 5 }, () => getDefaultUser() ));
-  }, [query]);
+    setLoading(true);
+    const variables = { query: `%${query}%`  }
+    searchUsers({ variables });
+    if (data) {
+      setResults(data.users)
+      setLoading(false)
+    }
+  }, [query, data, searchUsers]);
 
   function handleClearInput() {
     setQuery('');
@@ -78,31 +98,36 @@ function Search({ history }) {
         hasResults && (
           <Grid className={classes.resultContainer} container>
             {
-              results.map(result => (
-                <Grid 
-                  key={result.id} 
-                  item 
-                  className={classes.resultLink} 
-                  onClick={() => {
-                    history.push(`/${result.username}`);
-                    handleClearInput();
-                  }}
-                >
-                  <div className={classes.resultWrapper}>
-                    <div className={classes.avatarWrapper}>
-                      <Avatar src={result.profile_image} alt="user avatar" />
+              results.map(result =>  {
+                
+                const formattedUsername = result.username.length > 11 ? result.username.substring(0,11) + '...' : result.username;
+                const formattedName = result.name.length > 10 ? result.name.substring(0,10) + '...' : result.name;
+                return (
+                  <Grid 
+                    key={result.id} 
+                    item 
+                    className={classes.resultLink} 
+                    onClick={() => {
+                      history.push(`/${result.username}`);
+                      handleClearInput();
+                    }}
+                  >
+                    <div className={classes.resultWrapper}>
+                      <div className={classes.avatarWrapper}>
+                        <Avatar src={result.profile_image} alt="user avatar" />
+                      </div>
+                      <div className={classes.nameWrapper}>
+                        <Typography variant="body1">
+                          {formattedUsername}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {formattedName}
+                        </Typography>
+                      </div>
                     </div>
-                    <div className={classes.nameWrapper}>
-                      <Typography variant="body1">
-                        {result.username}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        {result.name}
-                      </Typography>
-                    </div>
-                  </div>
-                </Grid>
-              ))
+                  </Grid>
+                )
+              })
             }
           </Grid>)
       }>
@@ -126,10 +151,18 @@ function Search({ history }) {
 }
 
 function Links({ path }) {
+  // hooks
   const classes = useNavbarStyles();
+  const { me } = React.useContext(UserContext)
+  const inputRef = React.useRef();
+
+  // state
   const [showingList, setShowingList] = React.useState(false);
   const [showTooltip, setShowTooltip] = React.useState(true);
+  const [media, setMedia] = React.useState(null);
+  const [showAddPostDialog, setAddPostDialog] = React.useState(false);
 
+  // useEffect
   React.useEffect(() => {
     const timeout = setTimeout(handleHideTooltip, 5000);
     return () => {
@@ -149,12 +182,29 @@ function Links({ path }) {
     setShowingList(false);
   }
 
+  function openFileInput() {
+    inputRef.current.click();
+  }
+
+  function handleAddPost(event) {
+    setMedia(event.target.files[0]);
+    setAddPostDialog(true)
+  }
+
+  function handleClose() {
+    setAddPostDialog(false);
+  }
+
   return (
     <div className={classes.linksContainer}>
       { showingList && <NotificationList handleHideList={handleHideList} /> }
       <div className={classes.linksWrapper}>
+        {
+          showAddPostDialog && <AddPostDialog media={media} handleClose={handleClose} />
+        }
         <Hidden xsDown>
-          <AddIcon />
+          <input type='file' style={{ display: 'none' }} ref={inputRef} onChange={handleAddPost} />
+          <AddIcon onClick={openFileInput} />
         </Hidden>
         <Link to="/">
           {
@@ -179,16 +229,16 @@ function Links({ path }) {
             }
           </div>
         </RedTooltip>
-        <Link to={`/${defaultCurrentUser.username}`}>
+        <Link to={`/${me.username}`}>
           <div 
             className={
-              path ===`/${defaultCurrentUser.username}`
+              path ===`/${me.username}`
               ? classes.profileActive
               : ""
             }
           ></div>
           <Avatar
-            src={defaultCurrentUser.profile_image}
+            src={me.profile_image}
             className={classes.profileImage}
           />
         </Link>

@@ -30,3 +30,14 @@ export const GET_EDIT_PROFILE_INFO = gql`
         }
     }
 `
+
+export const SEARCH_USERS = gql`
+    query searchUsers($query: String) {
+        users(where: { _or: [ { username: {_ilike: $query} }, { name: {_ilike: $query} } ] }) {
+            id
+            profile_image
+            name
+            username
+        }
+    }
+`

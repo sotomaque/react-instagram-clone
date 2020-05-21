@@ -10,7 +10,10 @@ import ProfileTabs from '../components/profile/ProfileTabs';
 import { AuthContext } from "../auth";
 
 function ProfilePage() {
+  // hooks 
   const classes = useProfilePageStyles();
+
+  // state and local variables
   const [showOptionsMenu, setOptionsMenu] = React.useState(false);
   const isOwner = true;
 
@@ -56,9 +59,11 @@ function ProfilePage() {
 }
 
 function ProfileNameSection({ user, isOwner, handleOptionMenuClick }) {
+  // hooks
   const classes = useProfilePageStyles();
-  const [showUnfollowDialog, setUnfollowDialog] = React.useState(false);
 
+  // state and local variables
+  const [showUnfollowDialog, setUnfollowDialog] = React.useState(false);
   let followButton;
   const isFollowing = false;
   const isFollower = false;
