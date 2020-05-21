@@ -23,7 +23,7 @@ function ProfilePicture({ size, image, isOwner }) {
   }
 
   async function handleUpdateProfilePic(event) {
-    const url = await handleImageUpload(event.target.files[0]);
+    const url = await handleImageUpload(event.target.files[0], 'finstagram-avatar');
     const variables = { id: currentUserId, profileImage: url };
     await editUserAvatar({ variables });
     setImg(url);

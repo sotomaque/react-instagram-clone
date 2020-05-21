@@ -1,7 +1,8 @@
 import React from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import { GET_USER_PROFILE } from "../graphql/queries";
+import { FOLLOW_USER, UNFOLLOW_USER } from "../graphql/mutations";
 import { AuthContext } from "../auth";
 import { UserContext } from "../App";
 
@@ -21,7 +22,10 @@ function ProfilePage() {
   const { currentUserId } = React.useContext(UserContext);
   const { username } = useParams();
   const variables = { username }
-  const { data, loading } = useQuery(GET_USER_PROFILE, {variables});
+  const { data, loading } = useQuery(GET_USER_PROFILE, {
+    variables, 
+    fetchPolicy: 'no-cache'
+  });
 
   // state and local variables
   const [showOptionsMenu, setOptionsMenu] = React.useState(false);
@@ -74,12 +78,29 @@ function ProfilePage() {
 function ProfileNameSection({ user, isOwner, handleOptionMenuClick }) {
   // hooks
   const classes = useProfilePageStyles();
+  const { currentUserId, followingIds, followerIds } = React.useContext(UserContext);
+  const [followUser] = useMutation(FOLLOW_USER);
 
   // state and local variables
   const [showUnfollowDialog, setUnfollowDialog] = React.useState(false);
   let followButton;
-  const isFollowing = false;
-  const isFollower = false;
+  const isAlreadyFollowing = followingIds.some(id => id === user.id);
+  const [isFollowing, setFollowing] = React.useState(isAlreadyFollowing)
+  const isFollower = !isFollowing && followerIds.some(id => id === user.id);
+  
+  function handleFollowUser() {
+    setFollowing(true)
+    const variables = {
+      userIdToFollow: user.id,
+      currentUserId
+    }
+    followUser({ variables })
+  }
+
+  const onUnfollowUser = React.useCallback(() => {
+    setUnfollowDialog(false);
+    setFollowing(false);
+  }, []);
 
   if (isFollowing) {
     followButton = (
@@ -97,6 +118,7 @@ function ProfileNameSection({ user, isOwner, handleOptionMenuClick }) {
         variant="contained"
         color="primary"
         className={classes.button}
+        onClick={handleFollowUser}
       >
         Follow Back
       </Button>
@@ -104,8 +126,10 @@ function ProfileNameSection({ user, isOwner, handleOptionMenuClick }) {
   } else {
     followButton = (
       <Button
-        variant="outlined"
+        variant="contained"
+        color="primary"
         className={classes.button}
+        onClick={handleFollowUser}
       >
         Follow
       </Button>
@@ -160,14 +184,26 @@ function ProfileNameSection({ user, isOwner, handleOptionMenuClick }) {
           </section>
       </Hidden>
       {
-        showUnfollowDialog && <UnfollowDialog  user={user} onClose={() => setUnfollowDialog(false)} />
+        showUnfollowDialog && <UnfollowDialog  user={user} onClose={() => setUnfollowDialog(false)} onUnfollowUser={onUnfollowUser} />
       }
     </>
   );
 }
 
-function UnfollowDialog({ onClose, user }) {
+function UnfollowDialog({ onClose, user, onUnfollowUser }) {
   const classes = useProfilePageStyles();
+  const { currentUserId } = React.useContext(UserContext);
+
+  const [unfollowUser] = useMutation(UNFOLLOW_USER);
+
+  function handleUnfollowUser() {
+    const variables = {
+      userIdToUnfollow: user.id,
+      currentUserId
+    }
+    unfollowUser({ variables });
+    onUnfollowUser();
+  }
 
   return (
     <Dialog 
@@ -175,7 +211,7 @@ function UnfollowDialog({ onClose, user }) {
       classes={{
         scrollPaper: classes.unfollowDialogScrollPaper
       }}
-      onClose
+      onClose={onClose}
       TransitionComponent={Zoom}
     >
       <div className={classes.wrapper}>
@@ -188,7 +224,7 @@ function UnfollowDialog({ onClose, user }) {
 
       <Divider />
 
-      <Button className={classes.unfollowButton}>
+      <Button onClick={handleUnfollowUser} className={classes.unfollowButton}>
         Unfollow
       </Button>
 
@@ -259,11 +295,13 @@ function OptionMenu({ handleClick }) {
   const classes = useProfilePageStyles();
   const { signOut } = React.useContext(AuthContext);
   const history = useHistory();
+  const client = useApolloClient();
   const [showLogoutMessage, setLogoutMessage] = React.useState(false);
 
   function handleLogoutClick() {
     setLogoutMessage(true);
-    setTimeout(() => {
+    setTimeout(async () => {
+      await client.clearStore();
       signOut();
       history.push('/accounts/login');
     }, 1000)

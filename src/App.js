@@ -57,9 +57,11 @@ function App() {
   const isModalOpen = modal && prevLocation.current !== location;
   const me = isAuth  && data ? data.users[0] : null;
   const currentUserId = me.id;
+  const followingIds = me.following.map(({ user }) => user.id);
+  const followerIds = me.followers.map(({ user }) => user.id);
 
   return (
-    <UserContext.Provider value={{ me, currentUserId }}>
+    <UserContext.Provider value={{ me, currentUserId, followingIds, followerIds }}>
       {/** imperatively telling switch to ignore routers current location and use the previous one if the modal is open **/}
       <Switch location={isModalOpen ? prevLocation.current : location}>
         <Route exact path="/" component={FeedPage} />

@@ -82,7 +82,7 @@ function LoginPage() {
     return userEmail;
   }
 
-  function toggleShowPassword() {
+  function togglePasswordVisibility() {
     setShowPassword(prev => !prev);
   }
 
@@ -98,10 +98,10 @@ function LoginPage() {
             <form onSubmit={handleSubmit(onSubmit)}>
               {/* Input */}
               <TextField
-                name='input'
+                name="input"
                 inputRef={register({
                   required: true,
-                  minLength: 5
+                  minLength: 5,
                 })}
                 fullWidth
                 variant="filled"
@@ -110,19 +110,20 @@ function LoginPage() {
                 className={classes.textField}
                 autoComplete="username"
               />
-              {/* Password */}
               <TextField
-                name='password'
+                name="password"
                 inputRef={register({
                   required: true,
-                  minLength: 6
+                  minLength: 5,
                 })}
                 InputProps={{
-                  endAdornment: hasPassword &&(
+                  endAdornment: hasPassword && (
                     <InputAdornment>
-                      <Button onClick={toggleShowPassword}>{showPassword ? "Hide" : "Show"}</Button>
+                      <Button onClick={togglePasswordVisibility}>
+                        {showPassword ? "Hide" : "Show"}
+                      </Button>
                     </InputAdornment>
-                  )
+                  ),
                 }}
                 type={showPassword ? "text" : "password"}
                 fullWidth
@@ -132,16 +133,15 @@ function LoginPage() {
                 className={classes.textField}
                 autoComplete="current-password"
               />
-              {/* Login Button */}
-              <Button 
+              <Button
+                disabled={!formState.isValid || formState.isSubmitting}
                 variant="contained"
                 fullWidth
                 color="primary"
                 className={classes.button}
                 type="submit"
-                disabled={formState.isSubmitting || !formState.isValid}
               >
-                Login
+                Log In
               </Button>
               {/* Or Line */}
               <div className={classes.orContainer}>
