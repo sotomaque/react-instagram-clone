@@ -1,37 +1,50 @@
 import React from "react";
-import { useProfilePageStyles } from "../styles";
-import Layout from "../components/shared/Layout";
-import { defaultCurrentUser } from '../data';
-import { Card, CardContent, Hidden, Button, Typography, Dialog, Zoom, Divider, DialogTitle, Avatar } from "@material-ui/core";
-import ProfilePicture from '../components/shared/ProfilePicture';
-import { Link, useHistory } from "react-router-dom";
-import { GearIcon } from "../icons";
-import ProfileTabs from '../components/profile/ProfileTabs';
+import { Link, useHistory, useParams } from "react-router-dom";
+import { useQuery } from "@apollo/react-hooks";
+import { GET_USER_PROFILE } from "../graphql/queries";
 import { AuthContext } from "../auth";
+import { UserContext } from "../App";
+
+import { Card, CardContent, Hidden, Button, Typography, Dialog, Zoom, Divider, DialogTitle, Avatar } from "@material-ui/core";
+import LoadingScreen from "../components/shared/LoadingScreen";
+import Layout from "../components/shared/Layout";
+import ProfilePicture from '../components/shared/ProfilePicture';
+import ProfileTabs from '../components/profile/ProfileTabs';
+import { GearIcon } from "../icons";
+
+import { useProfilePageStyles } from "../styles";
+
 
 function ProfilePage() {
   // hooks 
   const classes = useProfilePageStyles();
+  const { currentUserId } = React.useContext(UserContext);
+  const { username } = useParams();
+  const variables = { username }
+  const { data, loading } = useQuery(GET_USER_PROFILE, {variables});
 
   // state and local variables
   const [showOptionsMenu, setOptionsMenu] = React.useState(false);
-  const isOwner = true;
+
+  if (loading) return <LoadingScreen />
+  const user = data.users[0];
+  const isOwner = user.id === currentUserId;
 
   function handleOptionMenuClick() {
     setOptionsMenu(prev => !prev);
   }
 
   return (
-    <Layout title={`${defaultCurrentUser.name} @${defaultCurrentUser.username}`}>
+    <Layout title={`${user.name} @${user.username}`}>
       <div className={classes.container}>
         {/**  Desktop View **/}
         <Hidden xsDown>
           <Card className={classes.cardLarge}>
-            <ProfilePicture isOwner={isOwner} />
+            <ProfilePicture isOwner={isOwner} image={user.profile_image} />
             <CardContent className={classes.cardContentLarge}>
-              <ProfileNameSection user={defaultCurrentUser} isOwner={isOwner} handleOptionMenuClick={handleOptionMenuClick} />
-              <PostCountSection user={defaultCurrentUser} />
-              <NameBioSection user={defaultCurrentUser} />
+              <ProfileNameSection user={user} isOwner={isOwner} handleOptionMenuClick={handleOptionMenuClick} />
+              <PostCountSection user={user} />
+              <NameBioSection user={user} />
             </CardContent>
           </Card>
         </Hidden>
@@ -41,18 +54,18 @@ function ProfilePage() {
           <Card className={classes.cardSmall}>
               <CardContent>
                 <section className={classes.sectionSmall}>
-                  <ProfilePicture size={77} isOwner={isOwner} />
-                  <ProfileNameSection user={defaultCurrentUser} isOwner={isOwner} handleOptionMenuClick={handleOptionMenuClick} />
+                  <ProfilePicture size={77} isOwner={isOwner} image={user.profile_image}  />
+                  <ProfileNameSection user={user} isOwner={isOwner} handleOptionMenuClick={handleOptionMenuClick} />
                 </section>
-                <NameBioSection user={defaultCurrentUser} />
+                <NameBioSection user={user} />
               </CardContent>
-              <PostCountSection user={defaultCurrentUser} />
+              <PostCountSection user={user} />
             </Card>
         </Hidden>
         {
           showOptionsMenu && <OptionMenu handleClick={handleOptionMenuClick} />
         }
-        <ProfileTabs user={defaultCurrentUser} isOwner={isOwner} />
+        <ProfileTabs user={user} isOwner={isOwner} />
       </div>
     </Layout>
   );
@@ -202,7 +215,7 @@ function PostCountSection({ user }) {
           options.map(option => (
             <div key={option} className={classes.followingText} >
               <Typography className={classes.followingCount}>
-                {user[option].length}
+                {user[`${option}_aggregate`].aggregate.count}
               </Typography>
               <Hidden xsDown>
                 <Typography>

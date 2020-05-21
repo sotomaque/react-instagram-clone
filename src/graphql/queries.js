@@ -41,3 +41,62 @@ export const SEARCH_USERS = gql`
         }
     }
 `
+
+export const GET_USER_PROFILE = gql`
+    query getUserProfile($username: String!) {
+        users(where: {username: {_eq: $username}}) {
+            id
+            username
+            name
+            profile_image
+            bio
+            website
+            posts_aggregate {
+                aggregate {
+                    count
+                }
+            }
+            saved_posts {
+                post {
+                    media
+                    id
+                    likes_aggregate {
+                        aggregate {
+                            count
+                        }
+                    }
+                    comments_aggregate {
+                        aggregate {
+                            count
+                        }
+                    }
+                }
+            }
+            followers_aggregate {
+                aggregate {
+                    count
+                }
+            }
+            following_aggregate {
+                aggregate {
+                    count
+                }
+            }
+            posts {
+                media
+                id
+                likes_aggregate {
+                    aggregate {
+                        count
+                    }
+                }
+                comments_aggregate {
+                    aggregate {
+                        count
+                    }
+                }
+            }
+        }
+    }
+
+`
