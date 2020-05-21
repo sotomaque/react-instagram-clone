@@ -14,6 +14,7 @@ import AddPostDialog from "../post/AddPostDialog";
 import logo from '../../images/logo.png';
 
 import { useNavbarStyles, WhiteTooltip, RedTooltip } from "../../styles";
+import { isAfter } from "date-fns/esm";
 
 function Navbar({ minimalNavbar }) {
   // hooks
@@ -153,12 +154,15 @@ function Search({ history }) {
 function Links({ path }) {
   // hooks
   const classes = useNavbarStyles();
-  const { me } = React.useContext(UserContext)
+  const { me, currentUserId } = React.useContext(UserContext);
+  const newNotifications = me.notifications.filter(({ created_at}) => isAfter(new Date(created_at), new Date(me.last_checked)));
+  const hasNotifications = newNotifications.length > 0;
+  console.log({ newNotifications });
   const inputRef = React.useRef();
 
   // state
   const [showingList, setShowingList] = React.useState(false);
-  const [showTooltip, setShowTooltip] = React.useState(true);
+  const [showTooltip, setShowTooltip] = React.useState(hasNotifications);
   const [media, setMedia] = React.useState(null);
   const [showAddPostDialog, setAddPostDialog] = React.useState(false);
 
@@ -197,7 +201,7 @@ function Links({ path }) {
 
   return (
     <div className={classes.linksContainer}>
-      { showingList && <NotificationList handleHideList={handleHideList} /> }
+      { showingList && <NotificationList notifications={me.notifications} handleHideList={handleHideList} currentUserId={currentUserId} /> }
       <div className={classes.linksWrapper}>
         {
           showAddPostDialog && <AddPostDialog media={media} handleClose={handleClose} />
@@ -221,9 +225,9 @@ function Links({ path }) {
           open={showTooltip}
           onOpen={handleHideTooltip}
           TransitionComponent={Zoom}
-          title={<NotificationTooltip />}
+          title={<NotificationTooltip notifications={newNotifications} />}
         >
-          <div className={classes.notifications} onClick={handleToggleList}>
+          <div className={hasNotifications ? classes.notifications : ""} onClick={handleToggleList}>
             {
               showingList ? <LikeActiveIcon /> : <LikeIcon />
             }

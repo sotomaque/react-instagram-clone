@@ -10,6 +10,7 @@ import { useSubscription, useMutation } from "@apollo/react-hooks";
 import { GET_POST } from "../../graphql/subscriptions";
 import { UserContext } from "../../App";
 import { LIKE_POST, UNLIKE_POST, SAVE_POST, UNSAVE_POST, CREATE_COMMENT } from "../../graphql/mutations";
+import { formatDateToNowShort, formatPostDate } from '../../utils/formatDate';
 
 function Post({ postId }) {
   const classes = usePostStyles();
@@ -18,7 +19,7 @@ function Post({ postId }) {
   const [showOptionsDialog, setOptionsDialog] = React.useState(false);
   if (loading) return <PostSkeleton />
 
-  const { id, media, likes, likes_aggregate, user, caption, comments, created_at, location, saved_posts, user_id } = data.posts_by_pk;
+  const { id, media, likes, likes_aggregate, user, caption, comments, created_at, location, saved_posts } = data.posts_by_pk;
   const likesCount = likes_aggregate.aggregate.count;
 
   return (
@@ -63,7 +64,7 @@ function Post({ postId }) {
           </div>
           {/* Date Posted Info */}
           <Typography color='textSecondary' className={classes.datePosted}>
-            5 DAYS AGO
+            {formatPostDate(created_at)}
           </Typography>
 
           {/* Area to add a comment */}
@@ -115,7 +116,7 @@ function AuthorCaption({ user, caption, createdAt }) {
           color="textSecondary"
           variant="caption"
         >
-          {createdAt}
+          {formatDateToNowShort(createdAt)}
         </Typography>
       </div>
     </div>
@@ -152,7 +153,7 @@ function UserComment({ comment }) {
           color="textSecondary"
           variant="caption"
         >
-          {comment.created_at}
+          {formatDateToNowShort(comment.created_at)}
         </Typography>
       </div>
     </div>
@@ -171,7 +172,7 @@ function LikeButton({ likes, authorId, postId }) {
   const variables = {
     postId,
     userId: currentUserId,
-    // profileId: authorId
+    profileId: authorId
   }
   const [likePost] = useMutation(LIKE_POST);
   const [unlikePost] = useMutation(UNLIKE_POST);
