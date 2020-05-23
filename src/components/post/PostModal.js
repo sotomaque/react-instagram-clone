@@ -22,25 +22,24 @@ function PostModal() {
           content: {
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
             maxWidth: 935,
             width: "100%",
-            top: "10%",
-            left: "20%",
+            top: "50%",
+            left: "50%",
             right: "auto",
             bottom: "auto",
-            tranform: "translate(-50%, -50%)",
-            margin: "auto",
+            transform: "translate(-50%, -50%)",
+            margin: 0,
             padding: 0,
             overflow: "none",
-            WebkitOverflowScrolling: "touch"
-          }
+            WebkitOverflowScrolling: "touch",
+          },
         }}
       >
         <Post postId={postId} />
       </Modal>
 
-      <div onClick={() => history.goBack() } className={classes.close}>
+      <div onClick={() => history.goBack()} className={classes.close}>
         <CloseIcon />
       </div>
     </>
