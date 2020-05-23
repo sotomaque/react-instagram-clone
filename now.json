@@ -1,7 +1,6 @@
 {
   "version": 2,
   "name": "finstagram",
-  "alias": "finstagram",
   "builds": [
     {
       "src": "package.json",
