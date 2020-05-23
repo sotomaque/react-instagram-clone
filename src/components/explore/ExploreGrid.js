@@ -1,18 +1,21 @@
 import React from "react";
 import { useExploreGridStyles } from "../../styles";
 import { Typography } from "@material-ui/core";
-import { LoadingLargeIcon } from "../../icons";
-import { getDefaultPost } from '../../data';
 import GridPost from '../shared/GridPost';
+import { LoadingLargeIcon } from "../../icons";
+import { useQuery } from "@apollo/react-hooks";
+import { EXPLORE_POSTS } from "../../graphql/queries";
+import { UserContext } from "../../App";
 
 function ExploreGrid() {
   const classes = useExploreGridStyles();
-
-  const [loading] = React.useState(false);
+  const { followingIds } = React.useContext(UserContext);
+  const variables = { followingIds }
+  const {data, loading} = useQuery(EXPLORE_POSTS, { variables });
 
   return (
     <>
-      <Typography 
+      <Typography
         color="textSecondary"
         variant="subtitle2"
         component="h2"
@@ -21,21 +24,17 @@ function ExploreGrid() {
       >
         Explore
       </Typography>
-      {
-        loading ? (
-          <LoadingLargeIcon />
-        ) : (
-          <article className={classes.article}>
-            <div className={classes.postContainer}>
-              {
-                Array.from({ length: 20}, () => getDefaultPost() ).map(post => (
-                  <GridPost key={post.id} post={post} />
-                ))
-              }
-            </div>
-          </article>
-        )
-      }
+      {loading ? (
+        <LoadingLargeIcon />
+      ) : (
+        <article className={classes.article}>
+          <div className={classes.postContainer}>
+            {data.posts.map((post) => (
+              <GridPost key={post.id} post={post} />
+            ))}
+          </div>
+        </article>
+      )}
     </>
   );
 }

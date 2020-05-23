@@ -5,7 +5,6 @@ import { useHistory } from "react-router-dom";
 
 function GridPost({ post }) {
   const history = useHistory();
-
   const classes = useGridPostStyles();
 
   function handleOpenPostModal() {

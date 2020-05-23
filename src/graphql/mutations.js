@@ -38,7 +38,7 @@ export const CREATE_POST = gql`
 export const LIKE_POST = gql`
     mutation likePost($postId: uuid!, $userId: uuid!, $profileId: uuid!) {
         insert_likes(objects: {post_id: $postId, user_id: $userId}) {
-            affected_rows
+            __typename
         }
         insert_notifications(objects: {post_id:  $postId, user_id: $userId, profile_id: $profileId, type: "like"}) {
             affected_rows
@@ -76,8 +76,17 @@ export const UNSAVE_POST = gql`
 export const CREATE_COMMENT = gql`
     mutation createComment($postId: uuid!, $userId: uuid!, $content: String!) {
         insert_comments(objects: {post_id: $postId, user_id: $userId, content: $content}) {
-                affected_rows
+            returning {
+                id
+                created_at
+                post_id
+                user_id
+                content
+                user {
+                    username
+                }
             }
+        }
     }
 `
 
@@ -117,3 +126,23 @@ export const UNFOLLOW_USER = gql`
     }
 `
 
+// delete post mutation should also delete all the associated likes / comments/ saved_posts / notifications for that given post
+export const DELETE_POST = gql`
+    mutation deletePost($postId: uuid!, $userId: uuid!) {
+        delete_posts(where: { id: {_eq: $postId}, user_id: {_eq: $userId}}) {
+            affected_rows
+        }
+        delete_likes(where: { post_id: {_eq: $postId}}) {
+            affected_rows
+        }
+        delete_comments(where: { post_id: {_eq: $postId}}) {
+            affected_rows
+        }
+        delete_saved_posts(where: { post_id: {_eq: $postId}}) {
+            affected_rows
+        }
+        delete_notifications(where: { post_id: {_eq: $postId}}) {
+            affected_rows
+        }
+    }
+`

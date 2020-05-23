@@ -67,13 +67,13 @@ export const GET_POST = gql`
                 id
                 user_id
             }
-            comments(order_by: {created_at: desc}) {
+            comments(order_by: { created_at: desc, user: { username: asc } }) {
                 id
                 content
                 created_at
                 user {
-                    username
-                    profile_image
+                username
+                profile_image
                 }
             }
         }

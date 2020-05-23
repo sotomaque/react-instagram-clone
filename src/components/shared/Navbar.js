@@ -157,7 +157,6 @@ function Links({ path }) {
   const { me, currentUserId } = React.useContext(UserContext);
   const newNotifications = me.notifications.filter(({ created_at}) => isAfter(new Date(created_at), new Date(me.last_checked)));
   const hasNotifications = newNotifications.length > 0;
-  console.log({ newNotifications });
   const inputRef = React.useRef();
 
   // state

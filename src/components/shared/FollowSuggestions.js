@@ -22,8 +22,6 @@ function FollowSuggestions({ hideHeader }) {
   }
   const {data, loading} = useQuery(SUGGEST_USERS, { variables })
 
-  console.log({ data })
-
   return (
     <div className={classes.container}>
       {/* Header (only displayed when props is false) */}

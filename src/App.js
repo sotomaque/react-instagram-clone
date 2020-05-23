@@ -44,7 +44,7 @@ function App() {
   }
 
   if (!isAuth) {
-    // use unAuth routes
+    // use unauth routes
     return (
       <Switch>
         <Route path="/accounts/login" component={LoginPage} />
@@ -59,9 +59,10 @@ function App() {
   const currentUserId = me.id;
   const followingIds = me.following.map(({ user }) => user.id);
   const followerIds = me.followers.map(({ user }) => user.id);
+  const feedIds = [...followingIds, currentUserId]
 
   return (
-    <UserContext.Provider value={{ me, currentUserId, followingIds, followerIds }}>
+    <UserContext.Provider value={{ me, currentUserId, followingIds, followerIds, feedIds }}>
       {/** imperatively telling switch to ignore routers current location and use the previous one if the modal is open **/}
       <Switch location={isModalOpen ? prevLocation.current : location}>
         <Route exact path="/" component={FeedPage} />

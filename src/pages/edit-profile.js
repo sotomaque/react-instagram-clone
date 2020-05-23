@@ -204,7 +204,7 @@ function EditUserInfo({ user }) {
     } else if (error.code?.includes("auth")) {
       setError({ type: "email", message: error.message });
     } else {
-      console.log("FAILED TO CATCH ERROR", error)
+      console.error("FAILED TO CATCH ERROR", error)
       setError({ type: 'other', message: 'Error'})
     }
   }

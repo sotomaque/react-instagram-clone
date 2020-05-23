@@ -1,4 +1,5 @@
 import { gql } from 'apollo-boost';
+import { userFields, gridPostFields } from './fragments';
 
 export const CHECK_IF_USERNAME_IS_TAKEN = gql`
     query checkIfUsernameTaken($username: String!) {
@@ -34,12 +35,10 @@ export const GET_EDIT_PROFILE_INFO = gql`
 export const SEARCH_USERS = gql`
     query searchUsers($query: String) {
         users(where: { _or: [ { username: {_ilike: $query} }, { name: {_ilike: $query} } ] }) {
-            id
-            profile_image
-            name
-            username
+            ...userFields
         }
     }
+    ${userFields}
 `
 
 export const GET_USER_PROFILE = gql`
@@ -58,18 +57,7 @@ export const GET_USER_PROFILE = gql`
             }
             saved_posts(order_by: { created_at : desc }) {
                 post {
-                    media
-                    id
-                    likes_aggregate {
-                        aggregate {
-                            count
-                        }
-                    }
-                    comments_aggregate {
-                        aggregate {
-                            count
-                        }
-                    }
+                    ...gridPostFields
                 }
             }
             followers_aggregate {
@@ -83,21 +71,11 @@ export const GET_USER_PROFILE = gql`
                 }
             }
             posts(order_by: { created_at : desc }) {
-                media
-                id
-                likes_aggregate {
-                    aggregate {
-                        count
-                    }
-                }
-                comments_aggregate {
-                    aggregate {
-                        count
-                    }
-                }
+                ...gridPostFields
             }
         }
     }
+    ${gridPostFields}
 `
 
 // suggest users from followers and also users created around the same time
@@ -107,10 +85,85 @@ export const SUGGEST_USERS = gql`
             { id: {_in:$followerIds }},
             { created_at: { _gt: $createdAt }}
         ]}) {
-            id
-            username
-            name
-            profile_image
+            ...userFields
         }
     }
+    ${userFields}
+`
+
+// posts with the most likes + comments
+// newest -> oldest
+// from users we are not following
+export const EXPLORE_POSTS = gql`
+    query explorePosts($followingIds: [uuid!]!) {
+        posts(order_by: {created_at: desc, likes_aggregate: {count: desc}, 
+        comments_aggregate: {count: desc}}, 
+        where: { id: {_nin: $followingIds}} ){
+            ...gridPostFields
+        }
+    }
+    ${gridPostFields}
+
+`
+
+// get 6 more posts from user that do not include current post
+export const GET_MORE_POSTS_FROM_USER = gql`
+    query getMorePostsFromUser($userId: uuid!, $postId: uuid!) {
+        posts(
+            limit: 6, 
+            where: { user_id: {_eq:$userId}, _not: {id: {_eq:$postId}} }
+        ) {
+            ...gridPostFields
+        }
+    }
+    ${gridPostFields}
+`
+
+// called in MorePostsFromUser to get posting user's id
+// necessary to then call GET_MORE_POSTS_FROM_USER query
+export const GET_POST = gql`
+    query getPost($postId: uuid!) {
+        posts_by_pk(id: $postId) {
+            id
+            user {
+                id
+                username
+            }
+        }
+    }
+`
+
+
+export const GET_FEED = gql`
+    query getFeed($limit: Int!, $feedIds: [uuid!]!, $lastTimestamp: timestamptz) {
+        posts(limit: $limit, where: {user_id: {_in:$feedIds}, created_at: {_lt: $lastTimestamp}}, order_by: {created_at: desc}) {
+            ...gridPostFields
+            caption
+            created_at
+            location
+            user {
+                id
+                profile_image
+                username
+                name
+            }
+            likes {
+                id
+                user_id
+            }
+            saved_posts {
+                id
+                user_id
+            }
+            comments(order_by: { created_at: desc }, limit: 2) {
+                id
+                content
+                created_at
+                user {
+                    username
+                }
+            }               
+        }
+    }
+    ${gridPostFields}
 `
